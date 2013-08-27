@@ -1,6 +1,6 @@
 #!/bin/bash
 
-conf="$HOME/.twilio.conf"
+conf="$HOME/.twiliosh.conf"
 number=
 message="Operation completed on $HOSTNAME at $(date)"
 
