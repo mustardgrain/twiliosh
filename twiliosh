@@ -1,0 +1,35 @@
+#!/bin/bash
+
+conf="$HOME/.twilio.conf"
+number=
+message="Operation completed on $HOSTNAME at $(date)"
+
+while getopts c:n:m: opt; do
+  case $opt in
+    c) conf=$OPTARG ;;
+    n) number=$OPTARG ;;
+    m) message=$OPTARG ;;
+  esac
+done
+
+if [ -f "$conf" ] ; then
+  . "$conf"
+else
+  echo "$conf not found, please specify a valid Twilio configuration file path"
+  exit 1
+fi
+
+if [ "$number" = "" ] ; then
+  if [ "$TWILIO_DEFAULT_RECIPIENT" = "" ] ; then
+    echo "Please specify a number to which to send an SMS, either as TWILIO_DEFAULT_RECIPIENT or via command line"
+  else
+    number="$TWILIO_DEFAULT_RECIPIENT"
+  fi
+fi
+
+curl -X POST https://api.twilio.com/2010-04-01/Accounts/$TWILIO_SID/SMS/Messages.xml \
+	-d "To=$number" \
+	-d "From=$TWILIO_NUMBER" \
+	-d "Body=$message" \
+	-u $TWILIO_SID:$TWILIO_AUTHTOKEN
+
