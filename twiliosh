@@ -3,12 +3,14 @@
 conf="$HOME/.twiliosh.conf"
 number=
 message="Operation completed on $HOSTNAME at $(date)"
+url=
 
-while getopts c:n:m: opt; do
+while getopts c:m:n:u: opt; do
   case $opt in
     c) conf=$OPTARG ;;
-    n) number=$OPTARG ;;
     m) message=$OPTARG ;;
+    n) number=$OPTARG ;;
+    u) url=$OPTARG ;;
   esac
 done
 
@@ -27,9 +29,16 @@ if [ "$number" = "" ] ; then
   fi
 fi
 
-curl -X POST https://api.twilio.com/2010-04-01/Accounts/$TWILIO_SID/SMS/Messages.xml \
-	-d "To=$number" \
-	-d "From=$TWILIO_NUMBER" \
-	-d "Body=$message" \
-	-u $TWILIO_SID:$TWILIO_AUTHTOKEN
-
+if [ "$url" != "" ] ; then
+  curl -X POST https://api.twilio.com/2010-04-01/Accounts/$TWILIO_SID/Calls \
+    -d "Url=$url" \
+    -d "To=$number" \
+    -d "From=$TWILIO_NUMBER" \
+    -u $TWILIO_SID:$TWILIO_AUTHTOKEN
+else
+  curl -X POST https://api.twilio.com/2010-04-01/Accounts/$TWILIO_SID/SMS/Messages.xml \
+    -d "To=$number" \
+    -d "From=$TWILIO_NUMBER" \
+    -d "Body=$message" \
+    -u $TWILIO_SID:$TWILIO_AUTHTOKEN
+fi
